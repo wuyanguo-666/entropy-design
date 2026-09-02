@@ -1,0 +1,49 @@
+{
+  "name": "entropy-design",
+  "version": "0.2.0",
+  "description": "Entropy Design - open-source AI canvas studio: agent-orchestrated image / speech / video generation on your own APIs",
+  "private": true,
+  "main": "out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
+    "check:docs": "node tools/check-tools-doc.mjs",
+    "test": "node tools/run-tests.mjs",
+    "mock": "node tools/mock-llm.mjs",
+    "mock:video": "node tools/mock-video-api.mjs",
+    "smoke:mcp": "node tools/smoke-mcp.mjs",
+    "smoke:media": "node tools/smoke-media.mjs",
+    "smoke:skills": "node tools/smoke-skills.mjs",
+    "smoke:ask": "node tools/smoke-ask-user.mjs",
+    "smoke:analyse": "node tools/smoke-analyse.mjs",
+    "smoke:task": "node tools/smoke-task.mjs",
+    "dist": "node tools/stage-ffmpeg.mjs && electron-vite build && electron-builder --win",
+    "dist:dir": "node tools/stage-ffmpeg.mjs && electron-vite build && electron-builder --win --dir",
+    "dist:mac": "node tools/stage-ffmpeg.mjs && electron-vite build && electron-builder --mac",
+    "dist:linux": "node tools/stage-ffmpeg.mjs && electron-vite build && electron-builder --linux"
+  },
+  "dependencies": {
+    "@xyflow/react": "^12.11.5",
+    "electron-updater": "^6.8.9",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "ws": "^8.18.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@types/ws": "^8.5.13",
+    "@vitejs/plugin-react": "^5.0.0",
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.0",
+    "electron-vite": "^5.0.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.0.0"
+  },
+  "license": "MIT",
+  "author": "Entropy Design Contributors"
+}

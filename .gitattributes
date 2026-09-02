@@ -1,0 +1,9 @@
+# Normalize line endings so every checkout (incl. CI runners) is LF.
+# The frontmatter parsers and the docs gate depend on this: CRLF would make
+# `name: brand-tvc\r` fail the "frontmatter name must match the file" assertion.
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.otf binary
+*.exe binary
+*.zip binary

@@ -1,0 +1,22 @@
+# dependencies / build output
+node_modules/
+out/
+release/
+*.tsbuildinfo
+
+# vendored binaries (fetch with tools/fetch-ffmpeg.mjs)
+vendor/ffmpeg/*/*.exe
+
+# runtime dumps (mock tools, generated media)
+assets/*.mp4
+.gen-assets/
+
+# logs & OS junk
+*.log
+.DS_Store
+Thumbs.db
+
+.local/
+
+# staged per-platform ffmpeg copy (tools/stage-ffmpeg.mjs)
+vendor/ffmpeg/current/

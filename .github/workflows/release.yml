@@ -1,0 +1,55 @@
+# Release pipeline: pushing a version tag builds the Windows installer on a clean
+# GitHub-hosted runner and publishes it as a GitHub Release with the artifacts.
+# The installer is NEVER committed to the repo and NEVER built by hand for release —
+# it is always produced from this exact commit, so binary and source stay in lockstep.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      - name: Verify (typecheck / tests / docs gate / smokes)
+        shell: bash  # fail-fast: pwsh would keep going after a failed npm step
+        run: |
+          npm run typecheck:node
+          npm run typecheck:web
+          npm run check:docs
+          npm test
+          npm run smoke:mcp
+          npm run smoke:skills
+          npm run smoke:analyse
+          npm run smoke:task
+
+      - name: Stage bundled ffmpeg (falls back to PATH at runtime if absent)
+        shell: bash
+        run: node tools/fetch-ffmpeg.mjs "https://github.com/BtbN/FFmpeg-Builds/releases/latest/download/ffmpeg-master-latest-win64-gpl.zip"
+
+      - name: Build installer (stage-ffmpeg + electron-vite build + electron-builder)
+        # --publish never: the next step owns Release creation; electron-builder
+        # must not try to upload with a GH_TOKEN it doesn't have
+        run: npm run dist -- --publish never
+
+      - name: Publish GitHub Release with artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          generate_release_notes: true
+          files: |
+            release/entropy-design-Setup-*.exe
+            release/entropy-design-Setup-*.exe.blockmap
+            release/latest.yml

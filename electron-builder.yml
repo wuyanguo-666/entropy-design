@@ -1,0 +1,87 @@
+appId: com.entropy.design
+productName: Entropy Design
+
+directories:
+  output: release
+  buildResources: build
+
+# mcp/skills/knowledge/agents must NOT land in app.asar: Electron's patched
+# fs.existsSync reports asar-inner paths as existing, which would make the
+# devPath branch in agent.ts win — but the MCP child process runs as plain
+# node and cannot read asar. They ship as extraResources instead.
+files:
+  - out/**/*
+  - package.json
+  - build/icon.png
+  - '!src/**'
+  - '!mcp/**'
+  - '!skills/**'
+  - '!knowledge/**'
+  - '!workflows/**'
+  - '!agents/**'
+  - '!tools/**'
+  - '!assets/**'
+  - '!vendor/**'
+  - '!release/**'
+  - '!electron.vite.config.ts'
+  - '!tsconfig*.json'
+  - '!**/*.tsbuildinfo'
+
+extraResources:
+  - from: mcp
+    to: mcp
+  - from: skills
+    to: skills
+  - from: knowledge
+    to: knowledge
+  - from: workflows
+    to: workflows
+  - from: agents
+    to: agents
+  # staged per-platform by tools/stage-ffmpeg.mjs (run via the npm dist scripts)
+  - from: vendor/ffmpeg/current
+    to: ffmpeg
+
+# Auto-update feed (electron-updater): GitHub Releases of wuyanguo-666/entropy-design.
+# Keep owner/repo in sync with the repository that publishes these builds.
+publish:
+  provider: github
+  owner: wuyanguo-666
+  repo: entropy-design
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.png
+
+# Cross-building mac/linux from Windows is unreliable (and mac requires macOS
+# tooling) — run npm run dist:mac on a mac, dist:linux on linux.
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+    - target: zip
+      arch: [x64, arm64]
+  category: public.app-category.design
+  icon: build/icon.png
+  # no certificate configured: builds adhoc-signed, users must approve in
+  # System Settings (unsigned) — see README gatekeeper note
+  hardenedRuntime: false
+
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+  category: Graphics
+  maintainer: Entropy Design Contributors
+  icon: build/icon.png
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+  artifactName: ${name}-Setup-${version}.${ext}
+  shortcutName: Entropy Design

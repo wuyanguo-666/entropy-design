@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      # smoke/typecheck are pure node — skip the 130MB electron binary download
+      ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Typecheck (main process)
+        run: npm run typecheck:node
+      - name: Typecheck (renderer)
+        run: npm run typecheck:web
+      - name: Doc-vs-code — agents/entropy.md tool list
+        run: npm run check:docs
+      - name: Unit tests (plan state machine, providers, media bins)
+        run: npm test
+      - name: Smoke — MCP (canvas/plan/selection/knowledge/comfy)
+        run: npm run smoke:mcp
+      - name: Smoke — ask_user bridge
+        run: npm run smoke:ask
+      - name: Smoke — skills (CRUD + folder layout + real skills)
+        run: npm run smoke:skills
+      - name: Smoke — media_analyse + i2i + series (mock vision)
+        run: npm run smoke:analyse
+      - name: Smoke — ffmpeg media line (skips if ffmpeg absent)
+        run: npm run smoke:media
+      - name: Smoke — task-event mirror (home task queue plumbing)
+        run: npm run smoke:task
